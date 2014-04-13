@@ -28,7 +28,7 @@ $(function () {
             if (!data.type) { return console.log('Malformed message from ' + id); }
             if (data.type === 'LATENCY') {
                 peer.trace({
-                    latency: data.recieved - data.sended,
+                    latency: (new Date()).getTime() - data.sended,
                     p1: self.id,
                     p2: id
                 });
@@ -41,11 +41,6 @@ $(function () {
                         recieved: recieved,
                         sended: data.sended
                     });
-                });
-                peer.trace({
-                    latency: recieved - data.sended,
-                    p1: self.id,
-                    p2: id
                 });
             }
             if (data.type === 'POSITION') {
