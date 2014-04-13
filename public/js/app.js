@@ -17,13 +17,17 @@ $(function () {
         createConnections();
     });
 
+    peer.on('error', function (err) {
+        console.log('ERROR', err);
+    });
+
     peer.on('connection', function (conn) {
         var self = this;
         var id = conn.peer;
         $('#' + id).remove();
         $('#cursors').append('<div class="cursor" id="' + id + '"></div>');
         $('#users span').text($('#cursors div:visible').length);
-
+        console.log('CONNECTION from ' + id);
         conn.on('data', function (data) {
             if (!data.type) { return console.log('Malformed message from ' + id); }
             if (data.type === 'LATENCY') {
@@ -34,6 +38,7 @@ $(function () {
                 });
             }
             if (data.type === 'GREETINGS') {
+                console.log('GREETINGS from ' + id);
                 var recieved = (new Date()).getTime();
                 getConnection(id, function (c) {
                     c.send({
@@ -48,6 +53,7 @@ $(function () {
             }
         });
         conn.on('close', function () {
+            console.log('CLOSED ' + id);
             $('#' + id).remove();
             $('#users span').text($('#cursors div:visible').length);
         });
@@ -81,15 +87,28 @@ $(function () {
         conn.on('open', cb.bind(cb, conn));
     }
 
+    var top, left;
+
+    function broadcast() {
+        for (var id in connections) {
+            if (top && left) {
+                connections[id].send({type: 'POSITION', left: left, top: top});
+            }
+        }
+    }
+
     function createPlayer(id) {
         $('#cursors').append('<div class="cursor" id="' + id + '"></div>');
         var player = $('#' + id);
         player.css('opacity', '0.1');
+        setInterval(broadcast, 1000);
         $('#cursors').mousemove($.throttle(50, function (event) {
+            top = event.pageY;
+            left = event.pageX;
             player.offset({left: event.pageX, top: event.pageY});
-            for (var id in connections) {
-                connections[id].send({type: 'POSITION', left: event.pageX, top: event.pageY});
-            }
+            broadcast();
         }));
+
+
     }
 });
