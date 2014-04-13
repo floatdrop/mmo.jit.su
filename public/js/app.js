@@ -85,11 +85,11 @@ $(function () {
         $('#cursors').append('<div class="cursor" id="' + id + '"></div>');
         var player = $('#' + id);
         player.css('opacity', '0.1');
-        $('#cursors').mousemove(function (event) {
+        $('#cursors').mousemove($.throttle(50, function (event) {
             player.offset({left: event.pageX, top: event.pageY});
             for (var id in connections) {
                 connections[id].send({type: 'POSITION', left: event.pageX, top: event.pageY});
             }
-        });
+        }));
     }
 });
