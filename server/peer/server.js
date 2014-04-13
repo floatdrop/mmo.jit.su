@@ -197,7 +197,7 @@ app._initializeHTTP = function() {
         }
 
         // Auth the req
-        if (req.params.token !== client.token) {
+        if (!client || !req.params || !req.params.token || req.params.token !== client.token) {
             res.send(401);
             return;
         } else {
