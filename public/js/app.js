@@ -101,7 +101,7 @@ $(function () {
         $('#cursors').append('<div class="cursor" id="' + id + '"></div>');
         var player = $('#' + id);
         player.css('opacity', '0.1');
-        setInterval(broadcast, 1000);
+        setInterval(broadcast, 1000 + (Math.random() * 5000));
         $('#cursors').mousemove($.throttle(50, function (event) {
             top = event.pageY;
             left = event.pageX;
