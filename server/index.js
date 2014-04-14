@@ -1,6 +1,6 @@
 'use strict';
 
-var PeerServer = require('./peer').PeerServer;
+var OnRamp = require('./onramp');
 
 if (process.env.NODETIME) {
     require('nodetime').profile({
@@ -9,12 +9,7 @@ if (process.env.NODETIME) {
     });
 }
 
-var port = Number(process.env.PORT || 8080),
-    url  = 'http://localhost:' + port + '/';
-
-if (process.env.SUBDOMAIN) {
-    url = 'http://' + process.env.SUBDOMAIN + '.jit.su/';
-}
+var port = Number(process.env.PORT || 8080);
 
 var app = require('./app');
 
@@ -22,11 +17,9 @@ var server = app.listen(port, function () {
     console.log('Express server listening on port ' + port);
 });
 
-var peerServer = new PeerServer({
-    path: '/api/',
-    server: server
+var onramp = OnRamp.create({
+    port: port,
+    httpServer: server
 });
 
-app.use(peerServer);
-
-app.initialize(peerServer);
+app.initialize(onramp);
