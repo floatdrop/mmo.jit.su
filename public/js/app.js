@@ -85,28 +85,24 @@ $(function () {
         if (!conn) { return console.log('!!! Failed to fetch connection for ' + id); }
         connections[id] = conn;
         conn.on('open', cb.bind(cb, conn));
-    }
-
-    var top, left;
-
-    function broadcast() {
-        for (var id in connections) {
-            if (top && left) {
-                connections[id].send({type: 'POSITION', left: left, top: top});
-            }
-        }
+        conn.on('error', function (err) {
+            console.log('connection is dead ', err);
+            delete connections[id];
+        });
     }
 
     function createPlayer(id) {
         $('#cursors').append('<div class="cursor" id="' + id + '"></div>');
         var player = $('#' + id);
         player.css('opacity', '0.1');
-        setInterval(broadcast, 1000 + (Math.random() * 5000));
         $('#cursors').mousemove($.throttle(50, function (event) {
-            top = event.pageY;
-            left = event.pageX;
             player.offset({left: event.pageX, top: event.pageY});
-            broadcast();
+            for (var id in connections) {
+                getConnection(id, function (c) {
+                    c.send({type: 'POSITION', left: event.pageX, top: event.pageY});
+                    //greetings(id);
+                });
+            }
         }));
 
 
